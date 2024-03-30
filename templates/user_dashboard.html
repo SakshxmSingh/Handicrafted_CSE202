@@ -5,6 +5,12 @@
 </head>
 <body>
     <h1>User Dashboard</h1>
+    {% if 'user' in session %}
+        <h2>Welcome, {{ session['user'][1] }}</h2>
+    {% endif %}
+    <form action="/logout" method="GET">
+        <button type="submit">Logout</button>
+    </form>
     <!-- <ul>
         {% for row in data %}
         <li>{{ row }}</li>

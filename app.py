@@ -37,7 +37,7 @@ def login():
         user = cursor.fetchone()
         if user:
             print(user[0])
-            session['user'] = user[0]  # Store user ID in session
+            session['user'] = user  # Store user ID in session
             return redirect(url_for('user_dashboard'))
         else:
             error = 'Invalid credentials. Please try again.'
@@ -48,7 +48,7 @@ def login():
         admin = cursor.fetchone()
         if admin:
             print(admin[0])
-            session['admin'] = admin[0]  # Store admin ID in session
+            session['admin'] = admin  # Store admin ID in session
             return redirect(url_for('admin_dashboard'))
         else:
             error = 'Invalid credentials. Please try again.'
