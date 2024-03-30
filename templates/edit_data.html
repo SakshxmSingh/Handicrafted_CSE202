@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Data</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <h2>Edit {{table_name}} entry</h2>
+    <form action="/admin_dashboard/edit_data/{{ table_name }}/{{ data_id }}" method="POST">
+        {% for column_name, column_value in data.items() %}
+        <div class="form-group">
+            <label for="{{ column_name }}">{{ column_name.capitalize() }}:</label>
+            <input type="text" id="{{ column_name }}" name="{{ column_name }}" value="{{ column_value }}" required>
+        </div>
+        {% endfor %}
+        <button type="submit">Save Changes</button>
+    </form>
+</body>
+</html>
