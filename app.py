@@ -90,7 +90,7 @@ def product_search():
         filters = []
 
         if category_filter != 'all':
-            filters.append(f"category_ID = '{category_filter}'")
+            filters.append(f"c.category_ID = '{category_filter}'")
 
         if price_filter == 'low':
             filters.append("price ORDER BY price ASC")
@@ -105,7 +105,7 @@ def product_search():
         if search_query:
             query = "SELECT p.* FROM product p JOIN category c ON p.category_ID = c.category_ID WHERE (p.productname LIKE %s OR c.catname LIKE %s)"
         else:
-            query = "SELECT * FROM product"
+            query = "SELECT * FROM product p JOIN category c ON p.category_ID = c.category_ID"
         
         if filters:
             query += " AND " + " AND ".join(filters)
