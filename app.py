@@ -446,8 +446,22 @@ def delete_customer(customer_ID):
     if 'admin' in session:
 
         cursor = mydb.cursor()
-        delete_query = "DELETE FROM customer WHERE customer_ID=%s"
-        cursor.execute(delete_query, (customer_ID,))
+        delete_queries = []
+#         DELETE FROM cart_items WHERE cart_ID IN (SELECT cart_ID FROM cart WHERE customer_ID = 1);
+# DELETE FROM cart WHERE customer_ID = 1;
+# DELETE FROM review WHERE customer_ID = 1;
+# DELETE FROM order_items WHERE order_ID IN (SELECT order_ID FROM orders WHERE customer_ID = 1);
+# DELETE FROM orders WHERE customer_ID = 1;
+# DELETE FROM customer WHERE customer_ID = 1;
+        delete_queries.append("DELETE FROM cart_items WHERE cart_ID IN (SELECT cart_ID FROM cart WHERE customer_ID = %s)")
+        delete_queries.append("DELETE FROM cart WHERE customer_ID = %s")
+        delete_queries.append("DELETE FROM review WHERE customer_ID = %s")
+        delete_queries.append("DELETE FROM order_items WHERE order_ID IN (SELECT order_ID FROM orders WHERE customer_ID = %s)")
+        delete_queries.append("DELETE FROM orders WHERE customer_ID = %s")
+        delete_queries.append("DELETE FROM customer WHERE customer_ID = %s")
+
+        for delete_query in delete_queries:
+            cursor.execute(delete_query, (customer_ID,))
         mydb.commit()
         cursor.close()
 
