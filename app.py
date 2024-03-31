@@ -133,9 +133,19 @@ def product_search():
 
         cursor.execute("SELECT * FROM category")
         categories = cursor.fetchall()
+        cursor.execute("SELECT * FROM orders WHERE customer_ID=%s", (session['user'][0],))
+        user_orders = cursor.fetchall()
+        cursor.execute("SELECT * FROM order_items")
+        order_items = cursor.fetchall()
+        cursor.execute("SELECT * FROM cart_items WHERE cart_ID=%s", (session['user'][0],))
+        cart_items = cursor.fetchall()
+        cursor.execute("SELECT * FROM product")
+        products = cursor.fetchall()
         cursor.close()
 
-        return render_template('user_dashboard.html', products=search_results, categories=categories, search_query=search_query)
+        return render_template('user_dashboard.html', products=search_results, categories=categories, search_query=search_query,
+                                orders=user_orders, order_items=order_items, cart_items=cart_items, 
+                                cart_total=calculate_cart_total(cart_items, products))
     else:
         return redirect(url_for('index'))
 
@@ -346,8 +356,17 @@ def add_product():
 def delete_product(product_ID):
     if 'admin' in session:
         cursor = mydb.cursor()
-        delete_query = "DELETE FROM product WHERE product_ID=%s"
-        cursor.execute(delete_query, (product_ID,))
+
+        delete_queries = []
+        delete_queries.append("DELETE FROM product_personalisation WHERE product_ID = %s")
+        delete_queries.append("DELETE FROM order_items WHERE product_ID = %s")
+        delete_queries.append("DELETE FROM cart_items WHERE product_ID = %s")
+        delete_queries.append("DELETE FROM review WHERE product_ID = %s")
+        delete_queries.append("DELETE FROM product WHERE product_ID = %s")
+
+        for delete_query in delete_queries:
+            cursor.execute(delete_query, (product_ID,))
+
         mydb.commit()
         cursor.close()
 
@@ -405,8 +424,18 @@ def add_category():
 def delete_category(category_id):
     if 'admin' in session:
         cursor = mydb.cursor()
-        delete_query = "DELETE FROM category WHERE category_ID=%s"
-        cursor.execute(delete_query, (category_id,))
+        delete_queries = []
+        
+        delete_queries.append("DELETE FROM product_personalisation WHERE product_ID IN (SELECT product_ID FROM product WHERE category_ID = %s)")
+        delete_queries.append("DELETE FROM order_items WHERE product_ID IN (SELECT product_ID FROM product WHERE category_ID = %s)")
+        delete_queries.append("DELETE FROM cart_items WHERE product_ID IN (SELECT product_ID FROM product WHERE category_ID = %s)")
+        delete_queries.append("DELETE FROM review WHERE product_ID IN (SELECT product_ID FROM product WHERE category_ID = %s)")
+        delete_queries.append("DELETE FROM product WHERE category_ID = %s")
+        delete_queries.append("DELETE FROM category WHERE category_ID = %s")
+
+        for delete_query in delete_queries:
+            cursor.execute(delete_query, (category_id,))
+
         mydb.commit()
         cursor.close()
 
@@ -447,12 +476,7 @@ def delete_customer(customer_ID):
 
         cursor = mydb.cursor()
         delete_queries = []
-#         DELETE FROM cart_items WHERE cart_ID IN (SELECT cart_ID FROM cart WHERE customer_ID = 1);
-# DELETE FROM cart WHERE customer_ID = 1;
-# DELETE FROM review WHERE customer_ID = 1;
-# DELETE FROM order_items WHERE order_ID IN (SELECT order_ID FROM orders WHERE customer_ID = 1);
-# DELETE FROM orders WHERE customer_ID = 1;
-# DELETE FROM customer WHERE customer_ID = 1;
+
         delete_queries.append("DELETE FROM cart_items WHERE cart_ID IN (SELECT cart_ID FROM cart WHERE customer_ID = %s)")
         delete_queries.append("DELETE FROM cart WHERE customer_ID = %s")
         delete_queries.append("DELETE FROM review WHERE customer_ID = %s")
@@ -474,8 +498,14 @@ def delete_order(order_ID):
     if 'admin' in session:
 
         cursor = mydb.cursor()
-        delete_query = "DELETE FROM orders WHERE order_ID=%s"
-        cursor.execute(delete_query, (order_ID,))
+        delete_queries = []
+
+        delete_queries.append("DELETE FROM order_items WHERE order_ID = %s")
+        delete_queries.append("DELETE FROM orders WHERE order_ID = %s")
+
+        for delete_query in delete_queries:
+            cursor.execute(delete_query, (order_ID,))
+
         mydb.commit()
         cursor.close()
 
