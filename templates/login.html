@@ -46,7 +46,7 @@
         <h1>Handicrafted</h1>
         <h2>Login</h2>
         {% if error %}
-        <div class="alert alert-danger">{{ error }}</div>
+        <h4 class="alert alert-danger" style="color: red;">{{ error }}</h4>
         {% endif %}
         <form action="/login" method="POST">
             <div class="form-group">

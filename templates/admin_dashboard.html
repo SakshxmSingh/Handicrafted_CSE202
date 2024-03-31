@@ -33,8 +33,13 @@
             <td>{{ employee[2] }}</td>
             <td>{{ employee[3] }}</td>
             <td>
-                <a href="/admin_dashboard/edit_data/employee/{{ employee[0] }}">Edit</a>
-                <a href="/admin_dashboard/delete_employee/{{ employee[0] }}">Delete</a>
+                <form action="/admin_dashboard/edit_data/employee/{{ employee[0] }}" method="GET">
+                    <button type="submit">Edit</button>
+                </form>
+                <form action="/admin_dashboard/delete_employee/{{ employee[0] }}" method="POST">
+                    <button type="submit">Delete</button>
+                </form>
+
             </td>
         </tr>
         {% endfor %}
@@ -67,8 +72,12 @@
             <td>{{ product[4] }}</td>
             <td>{{ categories[product[5]-1][1] }}</td>
             <td>
-                <a href="/admin_dashboard/edit_data/product/{{ product[0] }}">Edit</a>
-                <a href="/admin_dashboard/delete_product/{{ product[0] }}">Delete</a>
+                <form action="/admin_dashboard/edit_data/product/{{ product[0] }}" method="GET">
+                    <button type="submit">Edit</button>
+                </form>
+                <form action="/admin_dashboard/delete_product/{{ product[0] }}" method="POST">
+                    <button type="submit">Delete</button>
+                </form>
             </td>
         </tr>
         {% endfor %}
@@ -101,8 +110,12 @@
             <td>{{ category[1] }}</td>
             <td>{{ category[2] }}</td>
             <td>
-                <a href="/admin_dashboard/edit_data/category/{{ category[0] }}">Edit</a>
-                <a href="/admin_dashboard/delete_category/{{ category[0] }}">Delete</a>
+                <form action="/admin_dashboard/edit_data/category/{{ category[0] }}" method="GET">
+                    <button type="submit">Edit</button>
+                </form>
+                <form action="/admin_dashboard/delete_category/{{ category[0] }}" method="POST">
+                    <button type="submit">Delete</button>
+                </form>
             </td>
         </tr>
         {% endfor %}
@@ -132,7 +145,9 @@
             <td>{{ customer[3] }}</td>
             <td>{{ customer[4] }}</td>
             <td>
-                <a href="/admin_dashboard/delete_customer/{{ customer[0] }}">Delete</a>
+                <form action="/admin_dashboard/delete_customer/{{ customer[0] }}" method="POST">
+                    <button type="submit">Delete</button>
+                </form>
             </td>
         </tr>
         {% endfor %}
@@ -160,16 +175,13 @@
             <td>{{ order[2] }}</td>
             <td>{{ order[3] }}</td>
             <td>
-                <a href="/admin_dashboard/delete_order/{{ order[0] }}">Delete</a>
+                <form action="/admin_dashboard/delete_order/{{ order[0] }}" method="POST">
+                    <button type="submit">Delete</button>
+                </form>
             </td>
         </tr>
         {% endfor %}
     </table>
 
-
-
-
-
-    
 </body>
 </html>
