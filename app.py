@@ -61,9 +61,9 @@ def login():
 def calculate_cart_total(cart_items, products):
     cart_total = 0
     for item in cart_items:
-        product_id = item[1]
+        product_ID = item[1]
         quantity = item[2]
-        product_price = products[product_id - 1][2]
+        product_price = products[product_ID - 1][2]
         item_total = product_price * quantity
         cart_total += item_total
     return cart_total
@@ -135,6 +135,78 @@ def product_search():
     else:
         return redirect(url_for('index'))
 
+@app.route('/user_dashboard/add_to_cart/<int:product_ID>', methods=['POST'])
+def add_to_cart(product_ID):
+    if 'user' in session:
+        quantity = request.form['quantity']
+
+        cursor = mydb.cursor()
+        cursor.execute("SELECT stockquantity FROM product WHERE product_ID=%s", (product_ID,))
+        stock = cursor.fetchone()[0]
+        if int(quantity) > stock:
+            error = 'Quantity exceeds stock limit. Please try again.'
+            return render_template('user_dashboard.html', stockerror=error)
+        cursor.execute("SELECT * FROM cart_items WHERE product_ID=%s AND cart_ID=%s", (product_ID, session['user'][0]))
+        item = cursor.fetchone()
+
+        if item:
+            cursor.execute("SELECT quantity FROM cart_items WHERE product_ID=%s AND cart_ID=%s", (product_ID, session['user'][0]))
+            current_quantity = cursor.fetchone()[0]
+            quantity = int(quantity) + current_quantity
+            update_query = "UPDATE cart_items SET quantity=%s WHERE product_ID=%s AND cart_ID=%s"
+            cursor.execute(update_query, (quantity, product_ID, session['user'][0]))
+        else:
+            insert_query = "INSERT INTO cart_items (product_ID, cart_ID, quantity) VALUES (%s, %s, %s)"
+            cursor.execute(insert_query, (product_ID, session['user'][0], quantity))
+
+        mydb.commit()
+        cursor.close()
+
+        return redirect(url_for('user_dashboard'))
+    else:
+        return redirect(url_for('index'))
+
+@app.route('/user_dashboard/update_cart/<int:product_ID>', methods=['POST'])
+def update_cart(product_ID):
+    if 'user' in session:
+        quantity = request.form['quantity']
+
+        cursor = mydb.cursor()
+        cursor.execute("SELECT stockquantity FROM product WHERE product_ID=%s", (product_ID,))
+        stock = cursor.fetchone()[0]
+        if int(quantity) > stock:
+            error = 'Quantity exceeds stock limit. Please try again.'
+            return render_template('user_dashboard.html', stockerror=error)
+        cursor.execute("SELECT * FROM cart_items WHERE product_ID=%s AND cart_ID=%s", (product_ID, session['user'][0]))
+        item = cursor.fetchone()
+
+        if item:
+            update_query = "UPDATE cart_items SET quantity=%s WHERE product_ID=%s AND cart_ID=%s"
+            cursor.execute(update_query, (quantity, product_ID, session['user'][0]))
+        else:
+            insert_query = "INSERT INTO cart_items (product_ID, cart_ID, quantity) VALUES (%s, %s, %s)"
+            cursor.execute(insert_query, (product_ID, session['user'][0], quantity))
+
+        mydb.commit()
+        cursor.close()
+
+        return redirect(url_for('user_dashboard'))
+    else:
+        return redirect(url_for('index'))
+    
+@app.route('/user_dashboard/remove_from_cart/<int:product_ID>', methods=['POST'])
+def remove_cart_item(product_ID):
+    if 'user' in session:
+        cursor = mydb.cursor()
+        delete_query = "DELETE FROM cart_items WHERE product_ID=%s AND cart_ID=%s"
+        cursor.execute(delete_query, (product_ID, session['user'][0]))
+        mydb.commit()
+        cursor.close()
+
+        return redirect(url_for('user_dashboard'))
+    else:
+        return redirect(url_for('index'))
+
 
 
 @app.route('/admin_dashboard')
@@ -160,7 +232,6 @@ def admin_dashboard():
     else:
         return redirect(url_for('index'))
     
-
 @app.route('/admin_dashboard/add_employee', methods=['POST'])
 def add_employee():
     if 'admin' in session:
@@ -239,12 +310,12 @@ def add_product():
     else:
         return redirect(url_for('index'))
     
-@app.route('/admin_dashboard/delete_product/<int:product_id>', methods=['GET'])
-def delete_product(product_id):
+@app.route('/admin_dashboard/delete_product/<int:product_ID>', methods=['GET'])
+def delete_product(product_ID):
     if 'admin' in session:
         cursor = mydb.cursor()
         delete_query = "DELETE FROM product WHERE product_ID=%s"
-        cursor.execute(delete_query, (product_id,))
+        cursor.execute(delete_query, (product_ID,))
         mydb.commit()
         cursor.close()
 
@@ -252,8 +323,8 @@ def delete_product(product_id):
     else:
         return redirect(url_for('index'))
 
-@app.route('/admin_dashboard/edit_data/product/<int:product_id>', methods=['GET', 'POST'])
-def edit_product(product_id):
+@app.route('/admin_dashboard/edit_data/product/<int:product_ID>', methods=['GET', 'POST'])
+def edit_product(product_ID):
     if 'admin' in session:
         if request.method == 'POST':
             name = request.form['productname']
@@ -264,7 +335,7 @@ def edit_product(product_id):
 
             cursor = mydb.cursor()
             update_query = "UPDATE product SET productname=%s, price=%s, category_ID=%s, stockquantity=%s, productdesc=%s WHERE product_ID=%s"
-            cursor.execute(update_query, (name, price, category_id, stock, description, product_id))
+            cursor.execute(update_query, (name, price, category_id, stock, description, product_ID))
             mydb.commit()
             cursor.close()
 
@@ -272,13 +343,13 @@ def edit_product(product_id):
         else:
             cursor = mydb.cursor()
             select_query = "SELECT * FROM product WHERE product_ID=%s"
-            cursor.execute(select_query, (product_id,))
+            cursor.execute(select_query, (product_ID,))
             product_data = cursor.fetchone()
             cursor.close()
 
             product_dict = dict(zip([col[0] for col in cursor.description], product_data))
 
-            return render_template('edit_data.html', table_name='product', data_id=product_id, data=product_dict)
+            return render_template('edit_data.html', table_name='product', data_id=product_ID, data=product_dict)
     else:
         return redirect(url_for('index'))
     

@@ -74,6 +74,10 @@
         {% endfor %}
     </table>
 
+    {% if 'stockerror'}
+        <h4 style="color: red;">{{ stockerror }}</h4>
+    {% endif %}
+
     <h2>Cart</h2>
     <table border="1">
         <tr>
@@ -87,11 +91,11 @@
             <td>{{ item[2] }}</td>
             <td>{{ products[item[1] - 1][2] * item[2]}}</td>
             <td>
-                <form action="/user_dashboard/update_cart/{{ item[0] }}" method="POST">
+                <form action="/user_dashboard/update_cart/{{ item[1] }}" method="POST">
                     <input type="number" name="quantity" value="{{ item[2] }}" min="1">
                     <button type="submit">Update</button>
                 </form>
-                <form action="/user_dashboard/remove_from_cart/{{ item[0] }}" method="POST">
+                <form action="/user_dashboard/remove_from_cart/{{ item[1] }}" method="POST">
                     <button type="submit">Remove</button>
                 </form>
             </td>
