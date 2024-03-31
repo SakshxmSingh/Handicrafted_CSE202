@@ -155,7 +155,7 @@ def add_to_cart(product_ID):
         stock = cursor.fetchone()[0]
         if int(quantity) > stock:
             error = 'Quantity exceeds stock limit. Please try again.'
-            return render_template('user_dashboard.html', stockerror=error)
+            return render_template('user_dashboard.html', error=error)
         cursor.execute("SELECT * FROM cart_items WHERE product_ID=%s AND cart_ID=%s", (product_ID, session['user'][0]))
         item = cursor.fetchone()
 
@@ -198,7 +198,7 @@ def update_cart(product_ID):
         stock = cursor.fetchone()[0]
         if int(quantity) > stock:
             error = 'Quantity exceeds stock limit. Please try again.'
-            return render_template('user_dashboard.html', stockerror=error)
+            return render_template('user_dashboard.html', error=error)
         cursor.execute("SELECT * FROM cart_items WHERE product_ID=%s AND cart_ID=%s", (product_ID, session['user'][0]))
         item = cursor.fetchone()
 
@@ -245,40 +245,45 @@ def remove_cart_item(product_ID):
 @app.route('/user_dashboard/checkout', methods=['POST'])
 def checkout():
     if 'user' in session:
-        cursor = mydb.cursor()
-        cursor.execute("SELECT * FROM cart_items WHERE cart_ID=%s", (session['user'][0],))
-        cart_items = cursor.fetchall()
+        try:
+            cursor = mydb.cursor()
+            cursor.execute("SELECT * FROM cart_items WHERE cart_ID=%s", (session['user'][0],))
+            cart_items = cursor.fetchall()
 
-        # for item in cart_items:
-        #     product_ID = item[1]
-        #     quantity = item[2]
-        #     stock = products[product_ID - 1][3]
-        #     if quantity > stock:
-        #         error = 'Quantity exceeds stock limit. Please try again.'
-        #         return render_template('user_dashboard.html', stockerror=error)
+            if not cart_items:
+                raise mysql.connector.Error(errno=45000, msg="Cart is empty. Please add items to cart before checking out.")
+
+            # for item in cart_items:
+            #     product_ID = item[1]
+            #     quantity = item[2]
+            #     stock = products[product_ID - 1][3]
+            #     if quantity > stock:
+            #         error = 'Quantity exceeds stock limit. Please try again.'
+            #         return render_template('user_dashboard.html', stockerror=error)
 
 
-        for item in cart_items:
-            product_ID = item[1]
-            quantity = item[2]
-            cursor.execute("SELECT price FROM product WHERE product_ID=%s", (product_ID,))
-            product_price = cursor.fetchone()[0]
-            order_price = product_price * quantity
-            insert_order_query = "INSERT INTO orders (customer_ID, status) VALUES (%s, 'Processing')"
-            cursor.execute(insert_order_query, (session['user'][0],))
-            order_ID = cursor.lastrowid
-            insert_order_item_query = "INSERT INTO order_items (order_ID, product_ID, quantity, price) VALUES (%s, %s, %s, %s)"
-            cursor.execute(insert_order_item_query, (order_ID, product_ID, quantity, order_price))
-            reduce_stock_query = "UPDATE product SET stockquantity=stockquantity-%s WHERE product_ID=%s"
-            cursor.execute(reduce_stock_query, (quantity, product_ID))
+            for item in cart_items:
+                product_ID = item[1]
+                quantity = item[2]
+                cursor.execute("SELECT price FROM product WHERE product_ID=%s", (product_ID,))
+                product_price = cursor.fetchone()[0]
+                order_price = product_price * quantity
+                insert_order_query = "INSERT INTO orders (customer_ID, status) VALUES (%s, 'Processing')"
+                cursor.execute(insert_order_query, (session['user'][0],))
+                order_ID = cursor.lastrowid
 
-        delete_cart_query = "DELETE FROM cart_items WHERE cart_ID=%s"
-        cursor.execute(delete_cart_query, (session['user'][0],))
+            
+            delete_cart_query = "DELETE FROM cart_items WHERE cart_ID=%s"
+            cursor.execute(delete_cart_query, (session['user'][0],))
 
-        mydb.commit()
-        cursor.close()
+            mydb.commit()
+            cursor.close()
 
-        return redirect(url_for('user_dashboard'))
+            return redirect(url_for('user_dashboard'))
+        
+        except mysql.connector.Error as err:
+            return render_template('user_dashboard.html', error=err.msg)
+        
     else:
         return redirect(url_for('index'))
 
@@ -308,18 +313,22 @@ def admin_dashboard():
 @app.route('/admin_dashboard/add_employee', methods=['POST'])
 def add_employee():
     if 'admin' in session:
-        name = request.form['name']
-        phone = request.form['phone']
-        email = request.form['email']
-        passwd =  ''.join(random.choices(string.ascii_uppercase +string.digits, k=8))
+        try: 
+            name = request.form['name']
+            age = request.form['age']
+            phone = request.form['phone']
+            email = request.form['email']
+            passwd =  ''.join(random.choices(string.ascii_uppercase +string.digits, k=8))
 
-        cursor = mydb.cursor()
-        insert_query = "INSERT INTO employee (empname, phone_no, email, passwd) VALUES (%s, %s, %s, %s)"
-        cursor.execute(insert_query, (name, phone, email, passwd))
-        mydb.commit()
-        cursor.close()
+            cursor = mydb.cursor()
+            insert_query = "INSERT INTO employee (empname, age, phone_no, email, passwd) VALUES (%s, %s, %s, %s, %s)"
+            cursor.execute(insert_query, (name, age, phone, email, passwd))
+            mydb.commit()
+            cursor.close()
 
-        return redirect(url_for('admin_dashboard'))
+            return redirect(url_for('admin_dashboard'))
+        except mysql.connector.Error as err:
+            return render_template('admin_dashboard.html', ageerror=err.msg)
     else:
         return redirect(url_for('index'))
     

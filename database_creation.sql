@@ -90,6 +90,7 @@ CREATE TABLE order_items (
 CREATE TABLE employee (
     employee_ID INT AUTO_INCREMENT PRIMARY KEY,
     empname VARCHAR(255) NOT NULL,
+    age INT NOT NULL,
     phone_no VARCHAR(20) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     passwd VARCHAR(255) NOT NULL
@@ -232,17 +233,17 @@ INSERT INTO order_items (order_ID, product_ID, quantity, price) VALUES
 (9, 9, 2, 210),
 (10, 10, 3, 210);
 
-INSERT INTO employee (empname, phone_no, email, passwd) VALUES
-('Rohan Mehra', '1231231230', 'rohan.mehra@email.com', 'emp123'),
-('Anita Desai', '3213213210', 'anita.desai@email.com', 'emp456'),
-('Vikram Reddy', '4564564560', 'vikram.reddy@email.com', 'emp789'),
-('Meera Chopra', '6546546540', 'meera.chopra@email.com', 'emp101'),
-('Suresh Kumar', '7897897890', 'suresh.kumar@email.com', 'emp102'),
-('Deepika Rao', '8908908901', 'deepika.rao@email.com', 'emp103'),
-('Manish Singh', '9019019012', 'manish.singh@email.com', 'emp104'),
-('Kriti Joshi', '0120120123', 'kriti.joshi@email.com', 'emp105'),
-('Aryan Khanna', '1231231234', 'aryan.khanna@email.com', 'emp106'),
-('Simran Kaur', '2342342345', 'simran.kaur@email.com', 'emp107');
+INSERT INTO employee (empname, age, phone_no, email, passwd) VALUES
+('Rohan Mehra', '30', '1231231230', 'rohan.mehra@email.com', 'emp123'),
+('Anita Desai', '45', '3213213210', 'anita.desai@email.com', 'emp456'),
+('Vikram Reddy', '42', '4564564560', 'vikram.reddy@email.com', 'emp789'),
+('Meera Chopra', '28', '6546546540', 'meera.chopra@email.com', 'emp101'),
+('Suresh Kumar', '32', '7897897890', 'suresh.kumar@email.com', 'emp102'),
+('Deepika Rao', '30', '8908908901', 'deepika.rao@email.com', 'emp103'),
+('Manish Singh', '27', '9019019012', 'manish.singh@email.com', 'emp104'),
+('Kriti Joshi', '27','0120120123', 'kriti.joshi@email.com', 'emp105'),
+('Aryan Khanna', '37','1231231234', 'aryan.khanna@email.com', 'emp106'),
+('Simran Kaur', '42', '2342342345', 'simran.kaur@email.com', 'emp107');
 
 INSERT INTO admins (adminame, phone_no, email, passwd) VALUES
 ('Aditya Singh', '9879879870', 'aditya.singh@email.com', 'admin123'),
@@ -267,6 +268,7 @@ SELECT * FROM orders;
 SELECT * FROM order_items;
 SELECT * FROM employee;
 SELECT * FROM admins;
+
 
 /*
 CREATE INDEX idx_category_id ON product(category_ID);
