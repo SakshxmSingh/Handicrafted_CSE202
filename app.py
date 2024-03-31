@@ -62,9 +62,63 @@ def login():
 def user_dashboard():
     if 'user' in session:
         # Display user dashboard
-        return render_template('user_dashboard.html')
+        cursor = mydb.cursor()
+        cursor.execute("SELECT * FROM product")
+        products = cursor.fetchall()
+        cursor.execute("SELECT * FROM category")
+        categories = cursor.fetchall()
+        cursor.execute("SELECT * FROM orders WHERE customer_ID=%s", (session['user'][0],))
+        user_orders = cursor.fetchall()
+        cursor.execute("SELECT * FROM order_items")
+        order_items = cursor.fetchall()
+        return render_template('user_dashboard.html', products=products, categories=categories, 
+                               orders=user_orders, order_items=order_items)
     else:
         return redirect(url_for('index'))
+        
+@app.route('/user_dashboard/product_search', methods=['POST'])
+def product_search():
+    if 'user' in session:
+        search_query = request.form['search']
+        category_filter = request.form['category']
+        price_filter = request.form['price']
+        stock_filter = request.form['stock']
+
+        cursor = mydb.cursor()
+        search_query = "%" + search_query + "%"  # Add wildcard characters for partial matching
+
+        filters = []
+
+        if category_filter != 'all':
+            filters.append(f"category_ID = '{category_filter}'")
+
+        if price_filter == 'low':
+            filters.append("price ORDER BY price ASC")
+        elif price_filter == 'high':
+            filters.append("price ORDER BY price DESC")
+
+        if stock_filter == 'in_stock':
+            filters.append("stockquantity > 0")
+        elif stock_filter == 'out_of_stock':
+            filters.append("stockquantity = 0")
+
+        query = "SELECT p.* FROM product p JOIN category c ON p.category_ID = c.category_ID WHERE (p.productname LIKE %s OR c.catname LIKE %s)"
+
+        if filters:
+            query += " AND " + " AND ".join(filters)
+
+        cursor.execute(query, (search_query, search_query))
+        search_results = cursor.fetchall()
+
+        cursor.execute("SELECT * FROM category")
+        categories = cursor.fetchall()
+        cursor.close()
+
+        return render_template('user_dashboard.html', products=search_results, categories=categories, search_query=search_query)
+    else:
+        return redirect(url_for('index'))
+
+
 
 @app.route('/admin_dashboard')
 def admin_dashboard():
@@ -294,7 +348,6 @@ def delete_order(order_ID):
         return redirect(url_for('admin_dashboard'))
     else:
         return redirect(url_for('index'))
-
 
 @app.route('/logout')
 def logout():

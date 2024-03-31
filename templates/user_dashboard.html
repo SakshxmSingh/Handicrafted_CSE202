@@ -16,6 +16,83 @@
     <form action="/logout" method="GET">
         <button type="submit">Logout</button>
     </form>
+    <form action="/user_dashboard/cart" method="GET">
+        <button type="submit">View Cart</button>
+    </form>
+
+    <h2>Browse Products</h2>
+    
+    <h3>Search and Filter</h3>
+    <form action="/user_dashboard/product_search" method="POST">
+        <input type="text" name="search" placeholder="Search">
+        <select name="category">
+            <option value="all">All Categories</option>
+            {% for category in categories %}
+            <option value="{{ category[0] }}">{{ category[1] }}</option>
+            {% endfor %}
+        </select>
+        <select name="price">
+            <option value="all">All Prices</option>
+            <option value="low">Low to High</option>
+            <option value="high">High to Low</option>
+        </select>
+        <select name="stock">
+            <option value="all">All Stock</option>
+            <option value="in_stock">In Stock</option>
+            <option value="out_of_stock">Out of Stock</option>
+        </select>
+        <button type="submit">Search and Filter</button>
+    </form>
+
+    <h4>Products</h4>
+
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Price</th>
+            <!-- <th>Stock</th> -->
+            <th>Description</th>
+            <th>Category</th>
+            <th>Select Quantity</th>
+        </tr>
+        {% for product in products %}
+        <tr>
+            <td>{{ product[0] }}</td>
+            <td>{{ product[1] }}</td>
+            <td>{{ product[2] }}</td>
+            <!-- <td>{{ product[3] }}</td> -->
+            <td>{{ product[4] }}</td>
+            <td>{{ categories[product[5]-1][1] }}</td>
+            <td>
+                <form action="/user_dashboard/add_to_cart/{{ product[0] }}" method="POST">
+                    <input type="number" name="quantity" value="1" min="1">
+                    <button type="submit">Add to Cart</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h2>Your orders</h2>
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Product Name</th>
+            <th>Quantity</th>
+            <th>Order Date</th>
+            <th>Status</th>
+        </tr>
+        {% for order in orders %}
+        <tr>
+            <td>{{ order[0] }}</td>
+            <td>{{ products[order_items[order[0] - 1][1] - 1][1] }}</td>
+            <td>{{ order_items[order[0] - 1][2] }}</td>
+            <td>{{ order[2] }}</td>
+            <td>{{ order[3] }}</td>
+        </tr>
+        {% endfor %}
+
     <!-- <ul>
         {% for row in data %}
         <li>{{ row }}</li>
