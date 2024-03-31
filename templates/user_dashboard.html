@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Flask + MySQL Example</title>
+    <title>User Dashboard | Handicrafted</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -16,9 +16,9 @@
     <form action="/logout" method="GET">
         <button type="submit">Logout</button>
     </form>
-    <form action="/user_dashboard/cart" method="GET">
+    <!-- <form action="/user_dashboard/cart" method="GET">
         <button type="submit">View Cart</button>
-    </form>
+    </form> -->
 
     <h2>Browse Products</h2>
     
@@ -73,6 +73,37 @@
         </tr>
         {% endfor %}
     </table>
+
+    <h2>Cart</h2>
+    <table border="1">
+        <tr>
+            <th>Product Name</th>
+            <th>Quantity</th>
+            <th>Price</th>
+        </tr>
+        {% for item in cart_items %}
+        <tr>
+            <td>{{ products[item[1] - 1][1] }}</td>
+            <td>{{ item[2] }}</td>
+            <td>{{ products[item[1] - 1][2] * item[2]}}</td>
+            <td>
+                <form action="/user_dashboard/update_cart/{{ item[0] }}" method="POST">
+                    <input type="number" name="quantity" value="{{ item[2] }}" min="1">
+                    <button type="submit">Update</button>
+                </form>
+                <form action="/user_dashboard/remove_from_cart/{{ item[0] }}" method="POST">
+                    <button type="submit">Remove</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    
+    <h4>Total: {{ cart_total }}</h4>
+
+    <form action="/user_dashboard/checkout" method="POST">
+        <button type="submit">Checkout</button>
+    </form>
 
     <h2>Your orders</h2>
     <table border="1">

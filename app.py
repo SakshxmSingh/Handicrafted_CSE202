@@ -58,6 +58,16 @@ def login():
 
     cursor.close()
 
+def calculate_cart_total(cart_items, products):
+    cart_total = 0
+    for item in cart_items:
+        product_id = item[1]
+        quantity = item[2]
+        product_price = products[product_id - 1][2]
+        item_total = product_price * quantity
+        cart_total += item_total
+    return cart_total
+
 @app.route('/user_dashboard')
 def user_dashboard():
     if 'user' in session:
@@ -71,8 +81,12 @@ def user_dashboard():
         user_orders = cursor.fetchall()
         cursor.execute("SELECT * FROM order_items")
         order_items = cursor.fetchall()
+        cursor.execute("SELECT * FROM cart_items WHERE cart_ID=%s", (session['user'][0],))
+        cart_items = cursor.fetchall()
+        cursor.close()
         return render_template('user_dashboard.html', products=products, categories=categories, 
-                               orders=user_orders, order_items=order_items)
+                               orders=user_orders, order_items=order_items, cart_items=cart_items, 
+                               cart_total=calculate_cart_total(cart_items, products))
     else:
         return redirect(url_for('index'))
         
