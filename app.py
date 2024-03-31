@@ -32,6 +32,7 @@ def login():
     role = request.form['role']
 
     cursor = mydb.cursor()
+    mydb.commit()
 
     if role == 'user':
         query = "SELECT * FROM customer WHERE email = %s AND passwd = %s"
@@ -49,7 +50,7 @@ def login():
         cursor.execute(query, (username, password))
         admin = cursor.fetchone()
         if admin:
-            print(admin[0])
+            # print(admin[0])
             session['admin'] = admin  # Store admin ID in session
             return redirect(url_for('admin_dashboard'))
         else:
@@ -72,7 +73,9 @@ def calculate_cart_total(cart_items, products):
 def user_dashboard():
     if 'user' in session:
         # Display user dashboard
+
         cursor = mydb.cursor()
+        mydb.commit()
         cursor.execute("SELECT * FROM product")
         products = cursor.fetchall()
         cursor.execute("SELECT * FROM category")
@@ -86,7 +89,8 @@ def user_dashboard():
         cursor.close()
         return render_template('user_dashboard.html', products=products, categories=categories, 
                                orders=user_orders, order_items=order_items, cart_items=cart_items, 
-                               cart_total=calculate_cart_total(cart_items, products))
+                               cart_total=calculate_cart_total(cart_items, products)
+                               )
     else:
         return redirect(url_for('index'))
         
@@ -160,9 +164,21 @@ def add_to_cart(product_ID):
             cursor.execute(insert_query, (product_ID, session['user'][0], quantity))
 
         mydb.commit()
+        cursor.execute("SELECT * FROM product")
+        products = cursor.fetchall()
+        cursor.execute("SELECT * FROM category")
+        categories = cursor.fetchall()
+        cursor.execute("SELECT * FROM orders WHERE customer_ID=%s", (session['user'][0],))
+        user_orders = cursor.fetchall()
+        cursor.execute("SELECT * FROM order_items")
+        order_items = cursor.fetchall()
+        cursor.execute("SELECT * FROM cart_items WHERE cart_ID=%s", (session['user'][0],))
+        cart_items = cursor.fetchall()
         cursor.close()
-
-        return redirect(url_for('user_dashboard'))
+        return render_template('user_dashboard.html', products=products, categories=categories, 
+                               orders=user_orders, order_items=order_items, cart_items=cart_items, 
+                               cart_total=calculate_cart_total(cart_items, products)
+                               )
     else:
         return redirect(url_for('index'))
 
@@ -188,9 +204,22 @@ def update_cart(product_ID):
             cursor.execute(insert_query, (product_ID, session['user'][0], quantity))
 
         mydb.commit()
+        cursor.execute("SELECT * FROM product")
+        products = cursor.fetchall()
+        cursor.execute("SELECT * FROM category")
+        categories = cursor.fetchall()
+        cursor.execute("SELECT * FROM orders WHERE customer_ID=%s", (session['user'][0],))
+        user_orders = cursor.fetchall()
+        cursor.execute("SELECT * FROM order_items")
+        order_items = cursor.fetchall()
+        cursor.execute("SELECT * FROM cart_items WHERE cart_ID=%s", (session['user'][0],))
+        cart_items = cursor.fetchall()
         cursor.close()
+        return render_template('user_dashboard.html', products=products, categories=categories, 
+                               orders=user_orders, order_items=order_items, cart_items=cart_items, 
+                               cart_total=calculate_cart_total(cart_items, products)
+                               )
 
-        return redirect(url_for('user_dashboard'))
     else:
         return redirect(url_for('index'))
     
@@ -304,6 +333,9 @@ def add_product():
         insert_query = "INSERT INTO product (productname, price, stockquantity, productdesc, category_ID) VALUES (%s, %s, %s, %s, %s)"
         cursor.execute(insert_query, (name, price, stock, description, category_id))
         mydb.commit()
+        cursor.execute("SELECT * FROM product")
+        products = cursor.fetchall()
+        print(len(products))
         cursor.close()
 
         return redirect(url_for('admin_dashboard'))
@@ -440,6 +472,7 @@ def delete_order(order_ID):
 @app.route('/logout')
 def logout():
     session.clear()
+    mydb.commit()
     return redirect(url_for('index'))
 
 
