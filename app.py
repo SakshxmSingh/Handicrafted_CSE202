@@ -19,10 +19,6 @@ mydb = mysql.connector.connect(
 
 @app.route('/')
 def index():
-    # cursor = mydb.cursor()
-    # cursor.execute("SELECT * FROM admins")
-    # data = cursor.fetchall()
-    # cursor.close()
     return render_template('login.html')
 
 @app.route('/login', methods=['POST'])
@@ -252,12 +248,6 @@ def checkout():
         cursor = mydb.cursor()
         cursor.execute("SELECT * FROM cart_items WHERE cart_ID=%s", (session['user'][0],))
         cart_items = cursor.fetchall()
-        cursor.execute("SELECT * FROM product")
-        products = cursor.fetchall()
-        cursor.execute("SELECT * FROM orders")
-        orders = cursor.fetchall()
-        cursor.execute("SELECT * FROM order_items")
-        order_items = cursor.fetchall()
 
         # for item in cart_items:
         #     product_ID = item[1]
