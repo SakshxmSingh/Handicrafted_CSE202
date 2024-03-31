@@ -250,6 +250,9 @@ def checkout():
         cursor.execute("SELECT * FROM cart_items WHERE cart_ID=%s", (session['user'][0],))
         cart_items = cursor.fetchall()
 
+        if not cart_items:
+            error = 'Cart is empty. Please add items to cart before checking out.'
+            return render_template('user_dashboard.html', error=error)
         # for item in cart_items:
         #     product_ID = item[1]
         #     quantity = item[2]
@@ -257,8 +260,6 @@ def checkout():
         #     if quantity > stock:
         #         error = 'Quantity exceeds stock limit. Please try again.'
         #         return render_template('user_dashboard.html', stockerror=error)
-
-
         for item in cart_items:
             product_ID = item[1]
             quantity = item[2]
