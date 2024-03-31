@@ -35,10 +35,10 @@
             <td>{{ employee[3] }}</td>
             <td>{{ employee[4] }}</td>
             <td>
-                <form action="/admin_dashboard/edit_data/employee/{{ employee[0] }}" method="GET">
+                <form action="/admin_dashboard/edit_data/employee/{{ employee[0] }}" method="GET, POST">
                     <button type="submit">Edit</button>
                 </form>
-                <form action="/admin_dashboard/delete_employee/{{ employee[0] }}" method="POST">
+                <form action="/admin_dashboard/delete_employee/{{ employee[0] }}" method="GET">
                     <button type="submit">Delete</button>
                 </form>
 
@@ -80,10 +80,10 @@
             <td>{{ product[4] }}</td>
             <td>{{ categories[product[5]-1][1] }}</td>
             <td>
-                <form action="/admin_dashboard/edit_data/product/{{ product[0] }}" method="GET">
+                <form action="/admin_dashboard/edit_data/product/{{ product[0] }}" method="GET, POST">
                     <button type="submit">Edit</button>
                 </form>
-                <form action="/admin_dashboard/delete_product/{{ product[0] }}" method="POST">
+                <form action="/admin_dashboard/delete_product/{{ product[0] }}" method="GET">
                     <button type="submit">Delete</button>
                 </form>
             </td>
@@ -118,10 +118,10 @@
             <td>{{ category[1] }}</td>
             <td>{{ category[2] }}</td>
             <td>
-                <form action="/admin_dashboard/edit_data/category/{{ category[0] }}" method="GET">
+                <form action="/admin_dashboard/edit_data/category/{{ category[0] }}" method="GET,POST">
                     <button type="submit">Edit</button>
                 </form>
-                <form action="/admin_dashboard/delete_category/{{ category[0] }}" method="POST">
+                <form action="/admin_dashboard/delete_category/{{ category[0] }}" method="GET">
                     <button type="submit">Delete</button>
                 </form>
             </td>
@@ -153,7 +153,7 @@
             <td>{{ customer[3] }}</td>
             <td>{{ customer[4] }}</td>
             <td>
-                <form action="/admin_dashboard/delete_customer/{{ customer[0] }}" method="POST">
+                <form action="/admin_dashboard/delete_customer/{{ customer[0] }}" method="GET">
                     <button type="submit">Delete</button>
                 </form>
             </td>
@@ -183,7 +183,7 @@
             <td>{{ order[2] }}</td>
             <td>{{ order[3] }}</td>
             <td>
-                <form action="/admin_dashboard/delete_order/{{ order[0] }}" method="POST">
+                <form action="/admin_dashboard/delete_order/{{ order[0] }}" method="GET">
                     <button type="submit">Delete</button>
                 </form>
             </td>

@@ -46,33 +46,64 @@
 
     <h4>Products</h4>
 
-    <table border="1">
-        <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Price</th>
-            <!-- <th>Stock</th> -->
-            <th>Description</th>
-            <th>Category</th>
-            <th>Select Quantity</th>
-        </tr>
-        {% for product in products %}
-        <tr>
-            <td>{{ product[0] }}</td>
-            <td>{{ product[1] }}</td>
-            <td>{{ product[2] }}</td>
-            <!-- <td>{{ product[3] }}</td> -->
-            <td>{{ product[4] }}</td>
-            <td>{{ categories[product[5]-1][1] }}</td>
-            <td>
-                <form action="/user_dashboard/add_to_cart/{{ product[0] }}" method="POST">
-                    <input type="number" name="quantity" value="1" min="1">
-                    <button type="submit">Add to Cart</button>
-                </form>
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
+        <h4>Search Results</h4>
+        <table border="1">
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Price</th>
+                <!-- <th>Stock</th> -->
+                <th>Description</th>
+                <th>Category</th>
+                <th>Select Quantity</th>
+            </tr>
+            {% for product in search_results %}
+            <tr>
+                <td>{{ product[0] }}</td>
+                <td>{{ product[1] }}</td>
+                <td>{{ product[2] }}</td>
+                <!-- <td>{{ product[3] }}</td> -->
+                <td>{{ product[4] }}</td>
+                <td>{{ categories[product[5]-1][1] }}</td>
+                <td>
+                    <form action="/user_dashboard/add_to_cart/{{ product[0] }}" method="POST">
+                        <input type="number" name="quantity" value="1" min="1">
+                        <button type="submit">Add to Cart</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    
+        <h4>All Products</h4>
+        <table border="1">
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Price</th>
+                <!-- <th>Stock</th> -->
+                <th>Description</th>
+                <th>Category</th>
+                <th>Select Quantity</th>
+            </tr>
+            {% for product in products %}
+            <tr>
+                <td>{{ product[0] }}</td>
+                <td>{{ product[1] }}</td>
+                <td>{{ product[2] }}</td>
+                <!-- <td>{{ product[3] }}</td> -->
+                <td>{{ product[4] }}</td>
+                <td>{{ categories[product[5]-1][1] }}</td>
+                <td>
+                    <form action="/user_dashboard/add_to_cart/{{ product[0] }}" method="POST">
+                        <input type="number" name="quantity" value="1" min="1">
+                        <button type="submit">Add to Cart</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+
 
     {% if 'error' %}
         <h4 style="color: red;">{{ error }}</h4>
