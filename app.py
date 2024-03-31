@@ -102,8 +102,11 @@ def product_search():
         elif stock_filter == 'out_of_stock':
             filters.append("stockquantity = 0")
 
-        query = "SELECT p.* FROM product p JOIN category c ON p.category_ID = c.category_ID WHERE (p.productname LIKE %s OR c.catname LIKE %s)"
-
+        if search_query:
+            query = "SELECT p.* FROM product p JOIN category c ON p.category_ID = c.category_ID WHERE (p.productname LIKE %s OR c.catname LIKE %s)"
+        else:
+            query = "SELECT * FROM product"
+        
         if filters:
             query += " AND " + " AND ".join(filters)
 
