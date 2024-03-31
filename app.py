@@ -246,7 +246,51 @@ def remove_cart_item(product_ID):
     else:
         return redirect(url_for('index'))
 
+@app.route('/user_dashboard/checkout', methods=['POST'])
+def checkout():
+    if 'user' in session:
+        cursor = mydb.cursor()
+        cursor.execute("SELECT * FROM cart_items WHERE cart_ID=%s", (session['user'][0],))
+        cart_items = cursor.fetchall()
+        cursor.execute("SELECT * FROM product")
+        products = cursor.fetchall()
+        cursor.execute("SELECT * FROM orders")
+        orders = cursor.fetchall()
+        cursor.execute("SELECT * FROM order_items")
+        order_items = cursor.fetchall()
 
+        # for item in cart_items:
+        #     product_ID = item[1]
+        #     quantity = item[2]
+        #     stock = products[product_ID - 1][3]
+        #     if quantity > stock:
+        #         error = 'Quantity exceeds stock limit. Please try again.'
+        #         return render_template('user_dashboard.html', stockerror=error)
+
+
+        for item in cart_items:
+            product_ID = item[1]
+            quantity = item[2]
+            cursor.execute("SELECT price FROM product WHERE product_ID=%s", (product_ID,))
+            product_price = cursor.fetchone()[0]
+            order_price = product_price * quantity
+            insert_order_query = "INSERT INTO orders (customer_ID, status) VALUES (%s, 'Processing')"
+            cursor.execute(insert_order_query, (session['user'][0],))
+            order_ID = cursor.lastrowid
+            insert_order_item_query = "INSERT INTO order_items (order_ID, product_ID, quantity, price) VALUES (%s, %s, %s, %s)"
+            cursor.execute(insert_order_item_query, (order_ID, product_ID, quantity, order_price))
+            reduce_stock_query = "UPDATE product SET stockquantity=stockquantity-%s WHERE product_ID=%s"
+            cursor.execute(reduce_stock_query, (quantity, product_ID))
+
+        delete_cart_query = "DELETE FROM cart_items WHERE cart_ID=%s"
+        cursor.execute(delete_cart_query, (session['user'][0],))
+
+        mydb.commit()
+        cursor.close()
+
+        return redirect(url_for('user_dashboard'))
+    else:
+        return redirect(url_for('index'))
 
 @app.route('/admin_dashboard')
 def admin_dashboard():
