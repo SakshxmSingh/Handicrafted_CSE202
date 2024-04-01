@@ -266,6 +266,8 @@ def checkout():
             cursor.execute("SELECT price FROM product WHERE product_ID=%s", (product_ID,))
             product_price = cursor.fetchone()[0]
             order_price = product_price * quantity
+            reduce_stock_query = "UPDATE product SET stockquantity = stockquantity - %s WHERE product_ID=%s"
+            cursor.execute(reduce_stock_query, (quantity, product_ID))
             insert_order_query = "INSERT INTO orders (customer_ID, status) VALUES (%s, 'Processing')"
             cursor.execute(insert_order_query, (session['user'][0],))
             order_ID = cursor.lastrowid
