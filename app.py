@@ -55,6 +55,31 @@ def login():
 
     cursor.close()
 
+@app.route('/register')
+def register():
+    return render_template('register.html')
+
+@app.route('/register/create_user', methods=['POST'])
+def register_user():
+    name = request.form['name']
+    email = request.form['email']
+    phone = request.form['phone']
+    address = request.form['address']
+    password = request.form['password']
+
+    cursor = mydb.cursor()
+    mydb.commit()
+    insert_query = "INSERT INTO customer (fullname, phone_no, email, address, passwd) VALUES (%s, %s, %s, %s, %s)"
+    cursor.execute(insert_query, (name, phone, email, address, password))
+    # get the last row id
+    customer_ID = cursor.lastrowid
+    cart_inset_query = "INSERT INTO cart (customer_ID) VALUES (%s)"
+    cursor.execute(cart_inset_query, (customer_ID,))
+    mydb.commit()
+    cursor.close()
+
+    return render_template('login.html', success='Registration successful. Please login to continue.')
+
 def calculate_cart_total(cart_items, products):
     cart_total = 0
     for item in cart_items:
