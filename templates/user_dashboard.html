@@ -68,7 +68,11 @@
                 <td>
                     <form action="/user_dashboard/add_to_cart/{{ product[0] }}" method="POST">
                         <input type="number" name="quantity" value="1" min="1">
-                        <button type="submit">Add to Cart</button>
+                        <select name="action">
+                            <option value="add_to_cart">Add to Cart</option>
+                            <option value="buy_now">Buy Now</option>
+                        </select>
+                        <button type="submit">Submit</button>
                     </form>
                 </td>
             </tr>
@@ -97,7 +101,12 @@
                 <td>
                     <form action="/user_dashboard/add_to_cart/{{ product[0] }}" method="POST">
                         <input type="number" name="quantity" value="1" min="1">
-                        <button type="submit">Add to Cart</button>
+                        <!--create a radio button that toggles buy now or add ot cart-->
+                        <select name="action">
+                            <option value="add_to_cart">Add to Cart</option>
+                            <option value="buy_now">Buy Now</option>
+                        </select>
+                        <button type="submit">Submit</button>
                     </form>
                 </td>
             </tr>

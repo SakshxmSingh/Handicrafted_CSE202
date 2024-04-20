@@ -151,41 +151,60 @@ def add_to_cart(product_ID):
     if 'user' in session:
         quantity = request.form['quantity']
 
-        cursor = mydb.cursor()
-        cursor.execute("SELECT stockquantity FROM product WHERE product_ID=%s", (product_ID,))
-        stock = cursor.fetchone()[0]
-        if int(quantity) > stock:
-            error = 'Quantity exceeds stock limit. Please try again.'
-            return render_template('user_dashboard.html', error=error)
-        cursor.execute("SELECT * FROM cart_items WHERE product_ID=%s AND cart_ID=%s", (product_ID, session['user'][0]))
-        item = cursor.fetchone()
+        action = request.form['action']
+        if action == 'add_to_cart':
+            cursor = mydb.cursor()
+            cursor.execute("SELECT stockquantity FROM product WHERE product_ID=%s", (product_ID,))
+            stock = cursor.fetchone()[0]
+            if int(quantity) > stock:
+                error = 'Quantity exceeds stock limit. Please try again.'
+                return render_template('user_dashboard.html', error=error)
+            cursor.execute("SELECT * FROM cart_items WHERE product_ID=%s AND cart_ID=%s", (product_ID, session['user'][0]))
+            item = cursor.fetchone()
 
-        if item:
-            cursor.execute("SELECT quantity FROM cart_items WHERE product_ID=%s AND cart_ID=%s", (product_ID, session['user'][0]))
-            current_quantity = cursor.fetchone()[0]
-            quantity = int(quantity) + current_quantity
-            update_query = "UPDATE cart_items SET quantity=%s WHERE product_ID=%s AND cart_ID=%s"
-            cursor.execute(update_query, (quantity, product_ID, session['user'][0]))
-        else:
-            insert_query = "INSERT INTO cart_items (product_ID, cart_ID, quantity) VALUES (%s, %s, %s)"
-            cursor.execute(insert_query, (product_ID, session['user'][0], quantity))
+            if item:
+                cursor.execute("SELECT quantity FROM cart_items WHERE product_ID=%s AND cart_ID=%s", (product_ID, session['user'][0]))
+                current_quantity = cursor.fetchone()[0]
+                quantity = int(quantity) + current_quantity
+                update_query = "UPDATE cart_items SET quantity=%s WHERE product_ID=%s AND cart_ID=%s"
+                cursor.execute(update_query, (quantity, product_ID, session['user'][0]))
+            else:
+                insert_query = "INSERT INTO cart_items (product_ID, cart_ID, quantity) VALUES (%s, %s, %s)"
+                cursor.execute(insert_query, (product_ID, session['user'][0], quantity))
 
-        mydb.commit()
-        cursor.execute("SELECT * FROM product")
-        products = cursor.fetchall()
-        cursor.execute("SELECT * FROM category")
-        categories = cursor.fetchall()
-        cursor.execute("SELECT * FROM orders WHERE customer_ID=%s", (session['user'][0],))
-        user_orders = cursor.fetchall()
-        cursor.execute("SELECT * FROM order_items")
-        order_items = cursor.fetchall()
-        cursor.execute("SELECT * FROM cart_items WHERE cart_ID=%s", (session['user'][0],))
-        cart_items = cursor.fetchall()
-        cursor.close()
-        return render_template('user_dashboard.html', products=products, categories=categories, 
-                               orders=user_orders, order_items=order_items, cart_items=cart_items, 
-                               cart_total=calculate_cart_total(cart_items, products)
-                               )
+            mydb.commit()
+            cursor.execute("SELECT * FROM product")
+            products = cursor.fetchall()
+            cursor.execute("SELECT * FROM category")
+            categories = cursor.fetchall()
+            cursor.execute("SELECT * FROM orders WHERE customer_ID=%s", (session['user'][0],))
+            user_orders = cursor.fetchall()
+            cursor.execute("SELECT * FROM order_items")
+            order_items = cursor.fetchall()
+            cursor.execute("SELECT * FROM cart_items WHERE cart_ID=%s", (session['user'][0],))
+            cart_items = cursor.fetchall()
+            cursor.close()
+            return render_template('user_dashboard.html', products=products, categories=categories, 
+                                orders=user_orders, order_items=order_items, cart_items=cart_items, 
+                                cart_total=calculate_cart_total(cart_items, products)
+                                )
+        
+        elif action == 'buy_now':
+            cursor = mydb.cursor()
+            cursor.execute("SELECT price FROM product WHERE product_ID=%s", (product_ID,))
+            product_price = cursor.fetchone()[0]
+            order_price = product_price * int(quantity)
+            reduce_stock_query = "UPDATE product SET stockquantity = stockquantity - %s WHERE product_ID=%s"
+            cursor.execute(reduce_stock_query, (quantity, product_ID))
+            insert_order_query = "INSERT INTO orders (customer_ID, status) VALUES (%s, 'Processing')"
+            cursor.execute(insert_order_query, (session['user'][0],))
+            order_ID = cursor.lastrowid
+            insert_order_item_query = "INSERT INTO order_items (order_ID, product_ID, quantity, price) VALUES (%s, %s, %s, %s)" 
+            cursor.execute(insert_order_item_query, (order_ID, product_ID, quantity, order_price))
+            mydb.commit()
+            cursor.close()
+            return redirect(url_for('user_dashboard'))
+
     else:
         return redirect(url_for('index'))
 
